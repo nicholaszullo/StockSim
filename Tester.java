@@ -5,20 +5,15 @@ import java.net.http.HttpRequest.*;
 import java.net.http.HttpResponse.*;
 import java.util.Scanner;
 
+/**
+ *  export CLASSPATH=".;ClassPath/*"	Include current directory and all jars in ClassPath folder
+ */
+
 public class Tester {
 	public static void main(String[] args) {
-		Scanner scan = new Scanner(System.in);
-		System.out.println("Enter a stock ticker: ");
-		String stock = scan.nextLine();
-
-		HttpClient client = HttpClient.newHttpClient();
-
-		// getNewAccessKey(client);
-		JSON stockinfo = getTicker(stock, client);
-		System.out.println(stockinfo.getValue("lastPrice"));
-		JSON balance = getBalance(client);
-		System.out.println(balance.getValue("accountValue"));
-		scan.close();
+		DatabaseHandler database = new DatabaseHandler("","test.db");
+		//database.createTable(new String[]{"firsttable","id integer PRIMARY KEY"});
+		//database.insertData("firsttable", new String[]{"5"});
 	}
 
 	private static JSON getBalance(HttpClient client) {
