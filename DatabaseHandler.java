@@ -1,4 +1,5 @@
 import java.sql.*;
+import java.util.ArrayList;
 
 /**
  * export CLASSPATH=".;ClassPath/*" Include current directory and all jars in
@@ -37,13 +38,14 @@ public class DatabaseHandler {
 	 * Create a new table with column values and properities as specified in the
 	 * columns array The elements of columns should all be valid SQL statements
 	 * 
+	 * @param name    the name of the table, can include spaces now
 	 * @param columns the columns to add with properties
 	 */
 	public void createTable(String name, String[] columns) {
 		try {
 			ResultSet result = database.createStatement()
-					.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name=\'" + columns[0] + "\';");
-			if (result.getString(1) == name) {
+					.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name=\'" + name + "\';");
+			if (!result.isClosed() && result.getString(1).equals(name)) {
 				System.out.println("Table " + name + " already exists!!");
 				return;
 			}
@@ -53,7 +55,7 @@ public class DatabaseHandler {
 		}
 
 		StringBuilder statement = new StringBuilder();
-		statement.append("CREATE TABLE IF NOT EXISTS " + name + " (\n");
+		statement.append("CREATE TABLE IF NOT EXISTS [" + name + "] (\n");
 		for (int i = 0; i < columns.length; i++) {
 			statement.append("	" + columns[i]);
 			if (i < columns.length - 1)
@@ -71,11 +73,19 @@ public class DatabaseHandler {
 		}
 	}
 
-	public void insertData(String table, String[] data) {
+	/**
+	 * Inserts a new row of data to a table.
+	 * 
+	 * @param table The name of the table
+	 * @param data  an array of data, no spaces at the begining or end of the
+	 *              elements. Each index of the array corresponds to a column in the
+	 *              sql table. Data must be in the same order as table
+	 */
+	public void insertRow(String table, String[] data) {
 		try {
 			ResultSet result = database.createStatement()
 					.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name=\'" + table + "\';");
-			if (!result.next()) {
+			if (result.isClosed()) {
 				System.out.println("Table " + table + " does not exist!!");
 				return;
 			}
@@ -92,26 +102,26 @@ public class DatabaseHandler {
 			else
 				questionmarks.append("?");
 		}
-		statement.append("INSERT INTO " + table + " VALUES(" + questionmarks.toString() + ")");
+		statement.append("INSERT INTO [" + table + "] VALUES(" + questionmarks.toString() + ")");
 		try {
 			PreparedStatement prepState = database.prepareStatement(statement.toString());
-			for (int i = 0; i < data.length; i++){
+			for (int i = 0; i < data.length; i++) {
 				int choose = 0;
-				try{
+				try {
 					float test = Float.parseFloat(data[i]);
-					if (test != (int) test){
+					if (test != (int) test) {
 						choose = 1;
 					}
 
-				} catch (NumberFormatException e){
+				} catch (NumberFormatException e) {
 					choose = 2;
 				}
-				if (choose == 0){
-					prepState.setInt(i+1,Integer.parseInt(data[i]));
-				} else if (choose == 1){
-					prepState.setFloat(i+1,Float.parseFloat(data[i]));
+				if (choose == 0) {
+					prepState.setInt(i + 1, Integer.parseInt(data[i]));
+				} else if (choose == 1) {
+					prepState.setFloat(i + 1, Float.parseFloat(data[i]));
 				} else {
-					prepState.setString(i+1,data[i]);
+					prepState.setString(i + 1, data[i]);
 				}
 
 			}
@@ -123,4 +133,33 @@ public class DatabaseHandler {
 		}
 
 	}
+
+	/**	Query data from the database
+	 * 
+	 * @param table The name of the table to select
+	 * @param column The name of the column to select
+	 * @param extras A valid SQL command string. Can include WHERE, ORDER BY, etc.
+	 * @return an ArrayList of all the data returned by the query or null if the query failed
+	 */
+	public ArrayList<String> selectData(String table, String column, String extras) {
+		StringBuilder statement = new StringBuilder();
+		statement.append("SELECT " + column + " FROM [" + table+"]");
+		if (extras != null) {
+			statement.append(" " + extras);
+		}
+
+		try {
+			ResultSet result = database.createStatement().executeQuery(statement.toString());
+			ArrayList<String> data = new ArrayList<String>();
+			while (result.next()){
+				data.add(result.getString(1));
+			}
+			return data;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 }

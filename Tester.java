@@ -12,8 +12,23 @@ import java.util.Scanner;
 public class Tester {
 	public static void main(String[] args) {
 		DatabaseHandler database = new DatabaseHandler("","test.db");
+		Scanner scan = new Scanner(System.in);
+		System.out.println("Enter a table name: ");
+		String name = scan.nextLine();
+		System.out.println("Enter the column: ");
+		String column = scan.nextLine();
+		database.selectData(name, column, null);
+
+		//System.out.println("Enter a valid SQL comma seperated query describing the columns of the table: ");
+		//String query = scan.nextLine();
+		//String[] columns = query.split(",");
+		//database.createTable(name, columns);
+		//System.out.println("Enter data to add, comma seperated. no spaces before and after comma: ");
+		//String data = scan.nextLine();
+		//String[] dataArray = data.split(",");
+		//database.insertRow(name, dataArray);
 		//database.createTable(new String[]{"firsttable","id integer PRIMARY KEY"});
-		//database.insertData("firsttable", new String[]{"5"});
+		//database.insertRow("firsttable", new String[]{"5"});
 	}
 
 	private static JSON getBalance(HttpClient client) {
