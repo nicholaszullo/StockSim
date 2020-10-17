@@ -1,7 +1,5 @@
 package homemadejson.support;
 
-import javax.swing.text.html.parser.Parser;
-
 /**
  * General parsing runtime exception
  */
