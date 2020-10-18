@@ -15,11 +15,15 @@ public class JsonTest {
 
         InputDataBuffer buffer = FileUtil.readFile(fileName);
 
-        JsonObject jsonObject = runJsonParserBuilderBenchmark(buffer);
+        JsonObject jsonObject = runParser(buffer);
+
+        System.out.println(jsonObject.stringArray[0]);
+        System.out.println(jsonObject.key2);
+        System.out.println(jsonObject.key3);
 
     }
 
-    private static JsonObject runJsonParserBuilderBenchmark(InputDataBuffer buffer) {
+    private static JsonObject runParser(InputDataBuffer buffer) {
         TokenBuffer jsonTokens = new TokenBuffer(8192);
         TokenBuffer jsonElements = new TokenBuffer(8192);
 

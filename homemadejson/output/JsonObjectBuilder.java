@@ -20,26 +20,24 @@ public class JsonObjectBuilder {
     public static JsonObject parseJsonObject(JsonNavigator jsonNavigator) {
         JsonObject jsonObject = new JsonObject();
 
-        jsonNavigator.next();
-
         while (jsonNavigator.type() != ElementTypes.JSON_OBJECT_END) {
             jsonNavigator.next();
 
             if (jsonNavigator.isEqualUnencoded("key")) {
+                jsonNavigator.next();
                 jsonObject.key = jsonNavigator.asString();
-                jsonNavigator.next();
             } else if (jsonNavigator.isEqualUnencoded("key2")) {
+                jsonNavigator.next();
                 jsonObject.key2 = jsonNavigator.asInt();
-                jsonNavigator.next();
             } else if (jsonNavigator.isEqualUnencoded("key3")) {
-                jsonObject.key3 = jsonNavigator.asBoolean();
                 jsonNavigator.next();
+                jsonObject.key3 = jsonNavigator.asBoolean();
             } else if (jsonNavigator.isEqualUnencoded("stringArray")) {
                 jsonNavigator.next();
                 String[] strings = new String[jsonNavigator.countPrimitiveArrayElements()];
                 for (int i = 0, n = strings.length; i < n; i++) {
-                    strings[i] = jsonNavigator.asString();
                     jsonNavigator.next();
+                    strings[i] = jsonNavigator.asString();
                 }
                 jsonObject.stringArray = strings;
                 jsonNavigator.next();
@@ -47,16 +45,18 @@ public class JsonObjectBuilder {
                 jsonNavigator.next();
                 int[] ints = new int[jsonNavigator.countPrimitiveArrayElements()];
                 for (int i = 0, n = ints.length; i < n; i++) {
-                    ints[i] = jsonNavigator.asInt();
                     jsonNavigator.next();
+                    ints[i] = jsonNavigator.asInt();
                 }
+                jsonObject.numberArray = ints;
+                jsonNavigator.next();
             } else if (jsonNavigator.isEqualUnencoded("booleanArray")) {
                 jsonNavigator.next();
                 boolean[] booleans = new boolean[jsonNavigator.countPrimitiveArrayElements()];
 
                 for (int i = 0, n = booleans.length; i < n; i++) {
-                    booleans[i] = jsonNavigator.asBoolean();
                     jsonNavigator.next();
+                    booleans[i] = jsonNavigator.asBoolean();
                 }
                 jsonObject.booleanArray = booleans;
                 jsonNavigator.next();

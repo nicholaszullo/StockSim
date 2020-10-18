@@ -18,4 +18,13 @@ public class FileUtil {
         reader.close();
         return inputDataBuffer;
     }
+
+    public static InputDataBuffer readString(String jsonData) {
+        InputDataBuffer inputDataBuffer = new InputDataBuffer(jsonData.length());
+        inputDataBuffer.length = jsonData.length();
+        for (int i = 0; i < jsonData.length(); i++) {
+            inputDataBuffer.data[i] = jsonData.charAt(i);
+        }
+        return inputDataBuffer;
+    }
 }

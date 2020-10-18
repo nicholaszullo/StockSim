@@ -61,7 +61,7 @@ public class JsonNavigator {
         int tempPos = this.elementBuffer.position[this.elementIndex];
         for (int i = 0, n = this.elementBuffer.length[this.elementIndex]; i < n; i++) {
             value *= 10;
-            value += (this.buffer.data[tempPos] - 48);
+            value += this.buffer.data[tempPos] - 48;
             tempPos++;
         }
         return value;
@@ -112,7 +112,7 @@ public class JsonNavigator {
         while (this.elementBuffer.type[tempIndex] != ElementTypes.JSON_ARRAY_END) {
             tempIndex++;
         }
-        return tempIndex - this.elementIndex;
+        return tempIndex - this.elementIndex - 1;
     }
 
 

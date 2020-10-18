@@ -17,7 +17,7 @@ public class JsonTokenizer {
     private int tokenIndex = 0;
 
 //    Length of current token
-    private int tokenLength = 0;
+//    private int tokenLength = 0;
 
 //    Constructors/reinit
     public JsonTokenizer() {}
@@ -36,12 +36,11 @@ public class JsonTokenizer {
         this.tokenBuffer = tokenBuffer;
         this.dataPosition = 0;
         this.tokenIndex = 0;
-        this.tokenLength = 0;
     }
 
 //    Check for tokens
     public boolean hasMoreTokens() {
-        return (this.dataPosition + this.tokenLength) < this.dataBuffer.length ;
+        return (this.dataPosition + this.tokenBuffer.length[this.tokenIndex]) < this.dataBuffer.length ;
     }
 
 //    Main token parser
@@ -88,7 +87,7 @@ public class JsonTokenizer {
             case TokenTypes.JSON_SQUARE_BRACKET_RIGHT   : ;
             case TokenTypes.JSON_COLON                  : ;
             case TokenTypes.JSON_COMMA                  : { this.dataPosition++; break; }
-            default                                     : { this.dataPosition += this.tokenLength; }
+            default                                     : { this.dataPosition += this.tokenBuffer.length[this.tokenIndex]; }
         }
         this.tokenIndex++;
     }
@@ -98,7 +97,7 @@ public class JsonTokenizer {
         if (    this.dataBuffer.data[this.dataPosition + 1] == 'u' &&
                 this.dataBuffer.data[this.dataPosition + 2] == 'l' &&
                 this.dataBuffer.data[this.dataPosition + 3] == 'l' ) {
-            this.tokenLength = 4;
+            this.tokenBuffer.length[this.tokenIndex] = 4;
             return true;
         } else {
             return false;
@@ -110,7 +109,7 @@ public class JsonTokenizer {
         if (    this.dataBuffer.data[this.dataPosition + 1] == 'r' &&
                 this.dataBuffer.data[this.dataPosition + 2] == 'u' &&
                 this.dataBuffer.data[this.dataPosition + 3] == 'e' ) {
-            this.tokenLength = 4;
+            this.tokenBuffer.length[this.tokenIndex] = 4;
             return true;
         } else {
             return false;
@@ -123,7 +122,7 @@ public class JsonTokenizer {
                 this.dataBuffer.data[this.dataPosition + 2] == 'l' &&
                 this.dataBuffer.data[this.dataPosition + 3] == 's' &&
                 this.dataBuffer.data[this.dataPosition + 4] == 'e' ) {
-            this.tokenLength = 5;
+            this.tokenBuffer.length[this.tokenIndex] = 5;
             return true;
         } else {
             return false;
@@ -133,10 +132,10 @@ public class JsonTokenizer {
 //    Number parser
     private void parseNumber() {
         boolean endOfNumber = false;
-        this.tokenLength = 1;
+        this.tokenBuffer.length[this.tokenIndex] = 1;
 
         while (!endOfNumber) {
-            switch (this.dataBuffer.data[this.dataPosition + this.tokenLength]) {
+            switch (this.dataBuffer.data[this.dataPosition + this.tokenBuffer.length[this.tokenIndex]]) {
                 case '0': ;
                 case '1': ;
                 case '2': ;
@@ -148,7 +147,7 @@ public class JsonTokenizer {
                 case '8': ;
                 case '9': ;
                 case '.': {
-                    this.tokenLength++;
+                    this.tokenBuffer.length[this.tokenIndex]++;
                     break;
                 }
 
@@ -171,8 +170,9 @@ public class JsonTokenizer {
             }
         }
 
+        this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_STRING_TOKEN;
         this.tokenBuffer.position[this.tokenIndex] = this.dataPosition + 1;
-        this.tokenLength = (tempPos - this.dataPosition - 1) ;
+        this.tokenBuffer.length[this.tokenIndex] = (tempPos - this.dataPosition - 1) ;
     }
 
 //    Whitespace skipper

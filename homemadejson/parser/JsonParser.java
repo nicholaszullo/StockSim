@@ -106,6 +106,7 @@ public class JsonParser {
                 tokenType = tokenizer.tokenType();
             }
         }
+        setElementData(tokenizer, ElementTypes.JSON_ARRAY_END);
     }
 
 //    set element
