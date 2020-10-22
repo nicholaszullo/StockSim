@@ -32,8 +32,8 @@ public class JsonObjectBuilder {
             System.out.println(jsonNavigator.type());
             if (jsonNavigator.type() == ElementTypes.JSON_PROPERTY_NAME){       //If at a key, assign the value
                 String key = jsonNavigator.asString();
+                jsonNavigator.asString();
                 System.out.println("New Key found" + " " + key);
-                System.out.println(jsonNavigator.type() + "  " +jsonNavigator.asString());  //String needs an extra next() why?
                 System.out.println(jsonNavigator.type());
                 if (jsonNavigator.type() == ElementTypes.JSON_OBJECT_START){
                     HashMap<String,Object> nested = new HashMap<String,Object>();
@@ -96,6 +96,7 @@ public class JsonObjectBuilder {
                 }
             }
         }
+        jsonNavigator.next();
     }
 
     private void parseJsonStringArray(JsonNavigator jsonNavigator, ArrayList<String> nested) {
@@ -104,6 +105,7 @@ public class JsonObjectBuilder {
                 nested.add(jsonNavigator.asString());
             }
         }
+        jsonNavigator.next();
     }
 
     private void parseJsonBooleanArray(JsonNavigator jsonNavigator, ArrayList<Boolean> nested) {
@@ -112,6 +114,7 @@ public class JsonObjectBuilder {
                 nested.add(jsonNavigator.asBoolean());
             }
         }
+        jsonNavigator.next();
     }
 
 }
