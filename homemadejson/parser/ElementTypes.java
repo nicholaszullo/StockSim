@@ -20,5 +20,5 @@ public class ElementTypes {
     public static final byte JSON_PROPERTY_VALUE_NUMBER = 11;
     public static final byte JSON_PROPERTY_VALUE_BOOLEAN = 12;
     public static final byte JSON_PROPERTY_VALUE_NULL = 13;
-
+    public static final byte EOF = -1;
 }

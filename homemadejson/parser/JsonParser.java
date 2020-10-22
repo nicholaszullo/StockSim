@@ -30,34 +30,31 @@ public class JsonParser {
         this.elementIndex = 0;
         this.jsonTokenizer.reinit(dataBuffer, this.tokenBuffer);
         parseObject(this.jsonTokenizer);
+        this.elementBuffer.position[this.elementIndex] = this.elementIndex;
+        this.elementBuffer.length[this.elementIndex] = 1;
+        this.elementBuffer.type[this.elementIndex] = ElementTypes.EOF;
+        this.elementIndex++;
         this.elementBuffer.count = this.elementIndex;
     }
 
 
 //    Object parse
     private void parseObject(JsonTokenizer tokenizer) {
+        System.out.println("Theres only 1 object ?");
         assertHasMoreTokens(tokenizer);
         tokenizer.parseToken();
         assertThisTokenType(tokenizer.tokenType(), TokenTypes.JSON_CURLY_BRACKET_LEFT);
         setElementData(tokenizer, ElementTypes.JSON_OBJECT_START);
 
-        tokenizer.nextToken();
-        tokenizer.parseToken();
         byte tokenType = tokenizer.tokenType();
-
         while(tokenType != TokenTypes.JSON_CURLY_BRACKET_RIGHT) {
-            assertThisTokenType(tokenType, TokenTypes.JSON_STRING_TOKEN);
-            setElementData(tokenizer, ElementTypes.JSON_PROPERTY_NAME);
 
             tokenizer.nextToken();
             tokenizer.parseToken();
             tokenType = tokenizer.tokenType();
-            assertThisTokenType(tokenType, TokenTypes.JSON_COLON);
-
-            tokenizer.nextToken();
-            tokenizer.parseToken();
-            tokenType = tokenizer.tokenType();
-
+            if (tokenizer.peakColon()){
+                setElementData(tokenizer, ElementTypes.JSON_PROPERTY_NAME);
+            } 
             switch(tokenType) {
                 case TokenTypes.JSON_STRING_TOKEN   : { setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_STRING); } break;
                 case TokenTypes.JSON_NUMBER_TOKEN   : { setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_NUMBER); } break;
@@ -67,14 +64,7 @@ public class JsonParser {
                 case TokenTypes.JSON_SQUARE_BRACKET_LEFT : { parseArray(tokenizer); } break;
             }
 
-            tokenizer.nextToken();
-            tokenizer.parseToken();
-            tokenType = tokenizer.tokenType();
-            if(tokenType == TokenTypes.JSON_COMMA) {
-                tokenizer.nextToken();
-                tokenizer.parseToken();
-                tokenType = tokenizer.tokenType();
-            }
+            
         }
         setElementData(tokenizer, ElementTypes.JSON_OBJECT_END);
     }

@@ -1,5 +1,7 @@
 package homemadejson.output;
 
+import java.util.*;
+
 import homemadejson.parser.JsonParser;
 import homemadejson.support.InputDataBuffer;
 import homemadejson.support.TokenBuffer;
@@ -11,19 +13,15 @@ import homemadejson.support.TokenBuffer;
 
 public class JsonObject {
 
-//    Public attributes to be grabbed in JsonObjectBuilder and then accessed from this object
-//    lastPrice, symbol, description, totalVolume, peRatio, divAmount, divYield, etc.
-
-    public String symbol;
-    public String description;
-    public double lastPrice;
-    public double totalVolume;
-    public double peRatio;
-    public double divAmount;
-    public double divYield;
-
+    private HashMap<String, Object> values;
+    private JsonObject jsonObject;
+    public JsonObject(){
+        this("");
+    }
 //    Constructor (for use with json string)
     public JsonObject(String jsonString) {
+
+        values = new HashMap<String, Object>();
 
         InputDataBuffer buffer = new InputDataBuffer(jsonString.length());
         TokenBuffer jsonTokens = new TokenBuffer(8192);
@@ -33,11 +31,30 @@ public class JsonObject {
         for (int i=0; i < jsonString.length(); i++) {
             buffer.data[i] = jsonString.charAt(i);
         }
-
+        buffer.length = jsonString.length()-1;
         JsonParser jsonParser = new JsonParser(jsonTokens, jsonElements);
         jsonParser.parse(buffer);
-        JsonObject jsonObject = JsonObjectBuilder.parseJsonObject(buffer, jsonElements);
+        JsonObjectBuilder builder = new JsonObjectBuilder(buffer, jsonElements, this);
+        
+    }
 
+    /** Use on a HashMap that contains another HashMap as a value to receive the nested HashMap 
+     * 
+     * @param key the key the HashMap is mapped to
+     * @param map the HashMap to use the key with
+     * @return a HashMap<String,Object>, or null if no hashmap existed at key in map
+     */
+    @SuppressWarnings("unchecked")
+    public HashMap<String,Object> getNestedMap(String key, HashMap<String,Object> map){
+        HashMap<String, Object> nested = (HashMap<String,Object>)map.get(key);
+        if (nested instanceof HashMap<?,?>){
+            return nested;
+        }
+        return null;
+    }
+
+    public HashMap<String, Object> getValues() {
+        return values;
     }
 
 }

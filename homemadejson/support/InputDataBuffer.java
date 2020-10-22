@@ -12,6 +12,6 @@ public class InputDataBuffer {
 
 //    Constructors
     public InputDataBuffer() {}
-    public InputDataBuffer(char[] inputData) { data = inputData; }
+    public InputDataBuffer(char[] inputData) { data = inputData; length = data.length;}
     public InputDataBuffer(int capacity) { data = new char[capacity]; }
 }

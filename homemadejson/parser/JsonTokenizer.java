@@ -40,13 +40,14 @@ public class JsonTokenizer {
 
 //    Check for tokens
     public boolean hasMoreTokens() {
+        System.out.println(this.dataPosition + " " + this.tokenBuffer.length[this.tokenIndex] + " " + this.dataBuffer.length);
         return (this.dataPosition + this.tokenBuffer.length[this.tokenIndex]) < this.dataBuffer.length ;
     }
 
 //    Main token parser
     public void parseToken() {
         skipWhiteSpace();
-
+        System.out.println("current " + this.dataBuffer.data[this.dataPosition]);
         this.tokenBuffer.position[this.tokenIndex] = this.dataPosition;  // set location of new token
         char nextChar = this.dataBuffer.data[this.dataPosition];
 
@@ -91,7 +92,22 @@ public class JsonTokenizer {
         }
         this.tokenIndex++;
     }
+    public boolean peakColon(){
+        int tempData = dataPosition;
+        switch(this.tokenBuffer.type[this.tokenIndex]) {
+            case TokenTypes.JSON_STRING_TOKEN           : { tempData += this.tokenBuffer.length[this.tokenIndex] + 2; break; }  // because quotes
+            case TokenTypes.JSON_CURLY_BRACKET_LEFT     : ;
+            case TokenTypes.JSON_CURLY_BRACKET_RIGHT    : ;
+            case TokenTypes.JSON_SQUARE_BRACKET_LEFT    : ;
+            case TokenTypes.JSON_SQUARE_BRACKET_RIGHT   : ;
+            case TokenTypes.JSON_COLON                  : ;
+            case TokenTypes.JSON_COMMA                  : { tempData++; break; }
+            default                                     : { tempData += this.tokenBuffer.length[this.tokenIndex]; }
+        }
+        if (tempData >= dataBuffer.length) return false;
+        return dataBuffer.data[tempData] == ':';
 
+    }
 //    Null parser
     private boolean parseNull() {
         if (    this.dataBuffer.data[this.dataPosition + 1] == 'u' &&

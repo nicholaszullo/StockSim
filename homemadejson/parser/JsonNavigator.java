@@ -47,16 +47,30 @@ public class JsonNavigator {
         switch(stringType) {
             case ElementTypes.JSON_PROPERTY_NAME        : ;
             case ElementTypes.JSON_PROPERTY_VALUE_STRING: ;
-            case ElementTypes.JSON_ARRAY_VALUE_STRING   : { return new String(this.buffer.data, this.elementBuffer.position[this.elementIndex], this.elementBuffer.length[this.elementIndex]); }
+            case ElementTypes.JSON_ARRAY_VALUE_STRING   : { 
+                String holder = new String(this.buffer.data, this.elementBuffer.position[this.elementIndex], this.elementBuffer.length[this.elementIndex]); 
+                this.next();
+                return holder;
+            }
         }
         return null;
     }
 
     public boolean asBoolean() {
-        return 't' == this.buffer.data[this.elementBuffer.position[this.elementIndex]];
+        boolean holder = 't' == this.buffer.data[this.elementBuffer.position[this.elementIndex]];
+        this.next();
+        return holder;
     }
 
-    public int asInt() {
+    public boolean isInt(){
+        for (int i = 0; i < this.elementBuffer.length[this.elementIndex]; i++){
+            if (this.buffer.data[ this.elementBuffer.position[this.elementIndex] + i] == '.')
+                return false;
+        }
+        return true;
+    }
+
+    public Integer asInt() {
         int value = 0;
         int tempPos = this.elementBuffer.position[this.elementIndex];
         for (int i = 0, n = this.elementBuffer.length[this.elementIndex]; i < n; i++) {
@@ -64,6 +78,7 @@ public class JsonNavigator {
             value += this.buffer.data[tempPos] - 48;
             tempPos++;
         }
+        this.next();
         return value;
     }
 
@@ -95,6 +110,7 @@ public class JsonNavigator {
 
         int fractionLength = length - decimalIndex - 1;
         double divisor = Math.pow(10, fractionLength);
+        this.next();
         return value / divisor;
     }
 
