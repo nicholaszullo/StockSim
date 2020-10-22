@@ -32,8 +32,8 @@ public class JsonObjectBuilder {
             System.out.println(jsonNavigator.type());
             if (jsonNavigator.type() == ElementTypes.JSON_PROPERTY_NAME){       //If at a key, assign the value
                 String key = jsonNavigator.asString();
-                System.out.println("THERES ONLY 1 OBJECT!!" + " " + key);
-                System.out.println(jsonNavigator.type() + "  " +jsonNavigator.asString());
+                System.out.println("New Key found" + " " + key);
+                System.out.println(jsonNavigator.type() + "  " +jsonNavigator.asString());  //String needs an extra next() why?
                 System.out.println(jsonNavigator.type());
                 if (jsonNavigator.type() == ElementTypes.JSON_OBJECT_START){
                     HashMap<String,Object> nested = new HashMap<String,Object>();
@@ -79,7 +79,7 @@ public class JsonObjectBuilder {
             } else if (jsonNavigator.type() == ElementTypes.JSON_OBJECT_START){
                 jsonNavigator.next();
             } else {
-                throw new ParserException("Malformed Parse!");
+                throw new ParserException("Malformed Parse!" + " " + jsonNavigator.type());
             }
 
         }

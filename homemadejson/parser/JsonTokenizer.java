@@ -104,7 +104,20 @@ public class JsonTokenizer {
             case TokenTypes.JSON_COMMA                  : { tempData++; break; }
             default                                     : { tempData += this.tokenBuffer.length[this.tokenIndex]; }
         }
-        if (tempData >= dataBuffer.length) return false;
+        boolean isWhiteSpace = true;
+        while (isWhiteSpace) {
+            if (tempData >= dataBuffer.length) return false;
+            switch (this.dataBuffer.data[tempData]) {
+                case ' '    : ;
+                case '\r'   : ;
+                case '\n'   : ;
+                case '\t'   : { tempData++; } break;
+
+                default     : {isWhiteSpace = false;}
+            }
+        }
+        
+        System.out.println(dataBuffer.data[tempData]);
         return dataBuffer.data[tempData] == ':';
 
     }
