@@ -5,8 +5,12 @@ import homemadejson.support.TokenBuffer;
 
 /**
  * Class for navigating parsed output from the JsonParser
+ * Parsed output means it stores the length of elements and the type of elements in a data array.
+ * Navigator can then move to the next element in the string and interpret that
+ * 
+ * @author Shane Riley
+ * @author Nick Zullo
  */
-
 public class JsonNavigator {
 
     private InputDataBuffer buffer = null;
@@ -62,6 +66,10 @@ public class JsonNavigator {
         return holder;
     }
 
+    /** Use when the current element is a number. If it is a double, there will be a decimal point in the string
+     * 
+     * @return true if the current element is an int, false if it is a double
+     */
     public boolean isInt(){
         for (int i = 0; i < this.elementBuffer.length[this.elementIndex]; i++){
             if (this.buffer.data[ this.elementBuffer.position[this.elementIndex] + i] == '.')

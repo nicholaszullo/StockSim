@@ -10,9 +10,10 @@ import homemadejson.support.ParserException;
 import homemadejson.support.TokenBuffer;
 
 /**
- * Build output objects for StockSim
- * Uses buffer of elements from parser to build JsonObject tailored to the needs of the StockSim project
- * Shane Riley
+ * Fills the hashmap of the JsonObject using the JsonNavigator. 
+ * The hashmap supports nested JSON as well as arrays 
+ * @author Shane Riley
+ * @author Nick Zullo
  */
 
 public class JsonObjectBuilder {
@@ -29,18 +30,15 @@ public class JsonObjectBuilder {
 
     public void parseJsonObject(JsonNavigator jsonNavigator, HashMap<String,Object> curr) {
         while (jsonNavigator.type() != ElementTypes.JSON_OBJECT_END){ 
-            System.out.println(jsonNavigator.type());
             if (jsonNavigator.type() == ElementTypes.JSON_PROPERTY_NAME){       //If at a key, assign the value
                 String key = jsonNavigator.asString();
-                jsonNavigator.asString();
-                System.out.println("New Key found" + " " + key);
-                System.out.println(jsonNavigator.type());
-                if (jsonNavigator.type() == ElementTypes.JSON_OBJECT_START){
+                jsonNavigator.asString();                   //Need an extra next() after key Why? Storing of property name must be OBO
+                if (jsonNavigator.type() == ElementTypes.JSON_OBJECT_START){    //If new object, create a new hashmap and store it in the current hashmap. Call the new object with the new hashmap
                     HashMap<String,Object> nested = new HashMap<String,Object>();
                     curr.put(key, nested);
                     jsonNavigator.next();               //Move to next element for new call
                     parseJsonObject(jsonNavigator, nested);
-                } else if (jsonNavigator.type() == ElementTypes.JSON_ARRAY_START) {
+                } else if (jsonNavigator.type() == ElementTypes.JSON_ARRAY_START) { //New if else ladder for parsing an array
                     jsonNavigator.next();
                     if (jsonNavigator.type() == ElementTypes.JSON_ARRAY_VALUE_BOOLEAN){
                         ArrayList<Boolean> nested = new ArrayList<Boolean>();
@@ -56,10 +54,9 @@ public class JsonObjectBuilder {
                         parseJsonNumberArray(jsonNavigator, nested);
                     } else if (jsonNavigator.type() == ElementTypes.JSON_ARRAY_VALUE_NULL){
                         curr.put(key, null);
-                    } 
+                    } //End array ladder
                 } else if (jsonNavigator.type() == ElementTypes.JSON_PROPERTY_VALUE_STRING){
                     curr.put(key, jsonNavigator.asString());
-                    System.out.println(curr.get(key));
                 } else if (jsonNavigator.type() == ElementTypes.JSON_PROPERTY_VALUE_BOOLEAN){
                     curr.put(key, jsonNavigator.asBoolean());
                 } else if (jsonNavigator.type() == ElementTypes.JSON_PROPERTY_VALUE_NUMBER){
@@ -71,16 +68,16 @@ public class JsonObjectBuilder {
                 } else if (jsonNavigator.type() == ElementTypes.JSON_PROPERTY_VALUE_NULL){
                     curr.put(key, null);
                     jsonNavigator.next();
-                }  else {            //Key without a value
+                }  else {
                     throw new ParserException("Key without a value!");
-                }
-            } else if (jsonNavigator.type() == ElementTypes.JSON_OBJECT_END) {
+                }   //End key ladder
+            } else if (jsonNavigator.type() == ElementTypes.JSON_OBJECT_END) {  //If not at a key, must either be at the start or the end
                 return ;
             } else if (jsonNavigator.type() == ElementTypes.JSON_OBJECT_START){
                 jsonNavigator.next();
-            } else {
+            } else {    //Else the parser is wrong and debugging needed!
                 throw new ParserException("Malformed Parse!" + " " + jsonNavigator.type());
-            }
+            }   //End main ladder
 
         }
     

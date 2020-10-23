@@ -4,11 +4,25 @@ import java.net.http.*;
 import java.net.http.HttpRequest.*;
 import java.net.http.HttpResponse.*;
 
+import homemadejson.output.*;
+
 public class APIHandler {
 
-	 
+	HttpClient clientSender;
 
-	private JSON getBalance(HttpClient client) {
+	public APIHandler(){
+		clientSender = HttpClient.newHttpClient();
+
+	}
+	/**	Used to retrieve information about the stock account
+	 * 
+	 * @return A JSON object of the balance of the account
+	 */
+	public JsonObject getBalance(){
+
+		return getBalance(clientSender);
+	}	
+	private JsonObject getBalance(HttpClient client) {
 		StringBuilder auth = new StringBuilder();
 		auth.append("Bearer ");
 		BufferedReader access = null;
@@ -48,11 +62,18 @@ public class APIHandler {
 		} catch (IOException | InterruptedException e) {
 			panic("Unable to send balance request! " + e.toString());
 		}
-		return new JSON(response.body());
+		return new JsonObject(response.body());
 
 	}
 
-	private JSON getTicker(String ticker, HttpClient client) {
+	/**
+	 * @param ticker The stock to get the price of
+	 * @return a JSON representation of the API return
+	 */
+	public JsonObject getTicker(String ticker){
+		return getTicker(ticker, clientSender);
+	}
+	private JsonObject getTicker(String ticker, HttpClient client) {
 		BufferedReader api = null;
 		try {
 			api = new BufferedReader(new FileReader(new File("ApiKey.key")));
@@ -73,10 +94,8 @@ public class APIHandler {
 		HttpRequest req = HttpRequest.newBuilder(URI.create(url.toString())).header("accept", "application/json").GET()
 				.build();
 		try {
-			System.out.println("sending request...");
 			HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
-			System.out.println("Response recieved");
-			return new JSON(resp.body());
+			return new JsonObject(resp.body());
 
 		} catch (Exception e) {
 			panic("Unable to receive response! " + e.toString());
@@ -84,6 +103,13 @@ public class APIHandler {
 		}
 	}
 
+	/**	Used to get a new access token. Access tokens will expire 30 minutes after being obtained.
+	 * 
+	 * @return the file AccessToken.key will now contain the updated key
+	 */
+	public void getNewAccessKey(){
+		getNewAccessKey(clientSender);
+	}
 	private void getNewAccessKey(HttpClient client) {
 		BufferedWriter access = null;
 		BufferedReader refresh = null;
@@ -126,8 +152,8 @@ public class APIHandler {
 			panic("Access Token request failed!");
 		}
 		try {
-			JSON resp = new JSON(response.body());
-			access.write(resp.getValue("access_token"));
+			JsonObject json = new JsonObject(response.body());
+			access.write(String.valueOf(json.getValues().get("access_token")));
 			access.close();
 		} catch (IOException e) {
 			panic("Failed to write response to file!");

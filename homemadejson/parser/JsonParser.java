@@ -5,10 +5,10 @@ import homemadejson.support.TokenBuffer;
 import homemadejson.support.ParserException;
 
 /**
- * Main parser
- * Shane Riley
+ * Main parser. Creates elements out of tokens. Elements will be interpreted by the navigator. 
+ * @author Shane Riley
+ * @author Nick Zullo
  */
-
 public class JsonParser {
 
 //    Two token buffers, an index, and a tokenizer
@@ -40,27 +40,26 @@ public class JsonParser {
 
 //    Object parse
     private void parseObject(JsonTokenizer tokenizer) {
-        System.out.println("Theres only 1 object ?");
-        assertHasMoreTokens(tokenizer);
-        tokenizer.parseToken();
+        assertHasMoreTokens(tokenizer);         //If this method was called there must be more tokens
+        tokenizer.parseToken();                 //Must start an object with a {
         assertThisTokenType(tokenizer.tokenType(), TokenTypes.JSON_CURLY_BRACKET_LEFT);
         setElementData(tokenizer, ElementTypes.JSON_OBJECT_START);
 
         byte tokenType = tokenizer.tokenType();
-        while(tokenType != TokenTypes.JSON_CURLY_BRACKET_RIGHT) {
+        while(tokenType != TokenTypes.JSON_CURLY_BRACKET_RIGHT) {       //Interpret tokens one at a time
 
             tokenizer.nextToken();
             tokenizer.parseToken();
             tokenType = tokenizer.tokenType();
-            if (tokenizer.peakColon()){
+            if (tokenizer.peakColon()){             //If the token after this is a colon, it is a key
                 setElementData(tokenizer, ElementTypes.JSON_PROPERTY_NAME);
             } 
-            switch(tokenType) {
+            switch(tokenType) {         //If not, it is a value
                 case TokenTypes.JSON_STRING_TOKEN   : { setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_STRING); } break;
                 case TokenTypes.JSON_NUMBER_TOKEN   : { setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_NUMBER); } break;
                 case TokenTypes.JSON_BOOL_TOKEN   : { setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_BOOLEAN); } break;
                 case TokenTypes.JSON_NULL_TOKEN   : { setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_NULL); } break;
-                case TokenTypes.JSON_CURLY_BRACKET_LEFT  : { parseObject(tokenizer); } break;
+                case TokenTypes.JSON_CURLY_BRACKET_LEFT  : { parseObject(tokenizer); } break;       //Call this method again to recursively parse the new object then return to this object after
                 case TokenTypes.JSON_SQUARE_BRACKET_LEFT : { parseArray(tokenizer); } break;
             }
 

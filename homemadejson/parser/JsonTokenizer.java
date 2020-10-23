@@ -3,10 +3,10 @@ import homemadejson.support.TokenBuffer;
 import homemadejson.support.InputDataBuffer;
 
 /**
- * Primary Tokenizer Class
- * Shane Riley
+ * Primary Tokenizer Class. Interprets the original string to make into json tokens used by the parser.
+ * @author Shane Riley
+ * @author Nick Zullo
  */
-
 public class JsonTokenizer {
 //    Buffers
     InputDataBuffer dataBuffer;
@@ -40,14 +40,12 @@ public class JsonTokenizer {
 
 //    Check for tokens
     public boolean hasMoreTokens() {
-        System.out.println(this.dataPosition + " " + this.tokenBuffer.length[this.tokenIndex] + " " + this.dataBuffer.length);
         return (this.dataPosition + this.tokenBuffer.length[this.tokenIndex]) < this.dataBuffer.length ;
     }
 
 //    Main token parser
     public void parseToken() {
         skipWhiteSpace();
-        System.out.println("current " + this.dataBuffer.data[this.dataPosition]);
         this.tokenBuffer.position[this.tokenIndex] = this.dataPosition;  // set location of new token
         char nextChar = this.dataBuffer.data[this.dataPosition];
 
@@ -64,6 +62,7 @@ public class JsonTokenizer {
             case 't' : { if(parseTrue()) { this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_BOOL_TOKEN; } break; }
             case 'n' : { if(parseNull()) { this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_NULL_TOKEN; } break; }
 
+            //A number will either be a digit or a negative sign
             case '0' : ;
             case '1' : ;
             case '2' : ;
@@ -73,7 +72,8 @@ public class JsonTokenizer {
             case '6' : ;
             case '7' : ;
             case '8' : ;
-            case '9' : { parseNumber(); this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_NUMBER_TOKEN; break; }
+            case '9' : ; 
+            case '-' : { parseNumber(); this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_NUMBER_TOKEN; break; }
         }
     }
 
@@ -92,8 +92,13 @@ public class JsonTokenizer {
         }
         this.tokenIndex++;
     }
+
+    /** Used to determine if the current token is a key. If current is a key, a colon must follow
+     * 
+     * @return True if the next token is a colon, false otherwise.
+     */
     public boolean peakColon(){
-        int tempData = dataPosition;
+        int tempData = dataPosition;        //Not actually moving dataPosition, only peaking ahead so use a temp value
         switch(this.tokenBuffer.type[this.tokenIndex]) {
             case TokenTypes.JSON_STRING_TOKEN           : { tempData += this.tokenBuffer.length[this.tokenIndex] + 2; break; }  // because quotes
             case TokenTypes.JSON_CURLY_BRACKET_LEFT     : ;
@@ -104,9 +109,9 @@ public class JsonTokenizer {
             case TokenTypes.JSON_COMMA                  : { tempData++; break; }
             default                                     : { tempData += this.tokenBuffer.length[this.tokenIndex]; }
         }
-        boolean isWhiteSpace = true;
+        boolean isWhiteSpace = true;        //Skip any whitespace after the current token ends.
         while (isWhiteSpace) {
-            if (tempData >= dataBuffer.length) return false;
+            if (tempData >= dataBuffer.length) return false;        //If at the end or whitespace is after end, not a colon, don't go out of bounds
             switch (this.dataBuffer.data[tempData]) {
                 case ' '    : ;
                 case '\r'   : ;
@@ -117,8 +122,7 @@ public class JsonTokenizer {
             }
         }
         
-        System.out.println(dataBuffer.data[tempData]);
-        return dataBuffer.data[tempData] == ':';
+        return dataBuffer.data[tempData] == ':';        //After moving  past current token and any whitespace, is the new current token a colon or not
 
     }
 //    Null parser
