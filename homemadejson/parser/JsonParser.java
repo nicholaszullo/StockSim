@@ -35,9 +35,6 @@ public class JsonParser {
         } else {
             parseObject(this.jsonTokenizer);
         }
-        this.elementBuffer.position[this.elementIndex] = this.elementIndex;
-        this.elementBuffer.length[this.elementIndex] = 1;
-        this.elementBuffer.type[this.elementIndex] = ElementTypes.EOF;
         this.elementIndex++;
         this.elementBuffer.count = this.elementIndex;
     }
