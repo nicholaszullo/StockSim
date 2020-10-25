@@ -19,13 +19,20 @@ import homemadejson.support.TokenBuffer;
 public class JsonObjectBuilder {
 
     public JsonObjectBuilder(InputDataBuffer buffer, TokenBuffer elementBuffer, JsonObject jsonObject){
-        parseJsonObject(buffer, elementBuffer, jsonObject.getValues());
+        parseJsonObject(buffer, elementBuffer, jsonObject.getObjects());
 
     }
 
-    public void parseJsonObject(InputDataBuffer buffer, TokenBuffer elementBuffer, HashMap<String, Object> map) {
+    public void parseJsonObject(InputDataBuffer buffer, TokenBuffer elementBuffer, ArrayList<HashMap<String, Object>> objects) {
         JsonNavigator jsonNavigator = new JsonNavigator(buffer, elementBuffer);
-        parseJsonObject(jsonNavigator, map);
+        if (jsonNavigator.type() == ElementTypes.JSON_ARRAY_START){
+            parseJsonObjectArray(jsonNavigator, objects);
+        } else if (jsonNavigator.type() == ElementTypes.JSON_OBJECT_START){
+            parseJsonObject(jsonNavigator, objects.get(0));
+        } else {
+            throw new ParserException("Invalid Start to elements!");
+        }
+        
     }
 
     public void parseJsonObject(JsonNavigator jsonNavigator, HashMap<String,Object> curr) {
@@ -81,6 +88,21 @@ public class JsonObjectBuilder {
 
         }
     
+    }
+
+    private void parseJsonObjectArray(JsonNavigator jsonNavigator, ArrayList<HashMap<String,Object>> objects){
+        while (jsonNavigator.type() != ElementTypes.JSON_ARRAY_END){
+            if (jsonNavigator.type() == ElementTypes.JSON_ARRAY_START){
+                jsonNavigator.next();
+            } else if (jsonNavigator.type() == ElementTypes.JSON_OBJECT_START){
+                HashMap<String,Object> new_object = new HashMap<String, Object>();
+                objects.add(new_object);
+                parseJsonObject(jsonNavigator, new_object);
+            } else if (jsonNavigator.type() == ElementTypes.JSON_OBJECT_END){
+                jsonNavigator.next();
+            }
+        }
+        jsonNavigator.next();
     }
 
     private void parseJsonNumberArray(JsonNavigator jsonNavigator, ArrayList<Double> nested) {

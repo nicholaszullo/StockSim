@@ -29,7 +29,12 @@ public class JsonParser {
     public void parse(InputDataBuffer dataBuffer) {
         this.elementIndex = 0;
         this.jsonTokenizer.reinit(dataBuffer, this.tokenBuffer);
-        parseObject(this.jsonTokenizer);
+        jsonTokenizer.parseToken();
+        if (jsonTokenizer.tokenType() == TokenTypes.JSON_SQUARE_BRACKET_LEFT){
+            parseArray(jsonTokenizer);
+        } else {
+            parseObject(this.jsonTokenizer);
+        }
         this.elementBuffer.position[this.elementIndex] = this.elementIndex;
         this.elementBuffer.length[this.elementIndex] = 1;
         this.elementBuffer.type[this.elementIndex] = ElementTypes.EOF;
@@ -62,8 +67,6 @@ public class JsonParser {
                 case TokenTypes.JSON_CURLY_BRACKET_LEFT  : { parseObject(tokenizer); } break;       //Call this method again to recursively parse the new object then return to this object after
                 case TokenTypes.JSON_SQUARE_BRACKET_LEFT : { parseArray(tokenizer); } break;
             }
-
-            
         }
         setElementData(tokenizer, ElementTypes.JSON_OBJECT_END);
     }
@@ -78,14 +81,13 @@ public class JsonParser {
         while(tokenizer.tokenType() != TokenTypes.JSON_SQUARE_BRACKET_RIGHT) {
 //            Still in array
             byte tokenType = tokenizer.tokenType();
-
             switch(tokenType) {
                 case TokenTypes.JSON_STRING_TOKEN   : { setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE_STRING); } break;
                 case TokenTypes.JSON_NUMBER_TOKEN   : { setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE_NUMBER); } break;
                 case TokenTypes.JSON_BOOL_TOKEN   : { setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE_BOOLEAN); } break;
                 case TokenTypes.JSON_NULL_TOKEN   : { setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE_NULL); } break;
+                case TokenTypes.JSON_CURLY_BRACKET_LEFT : { parseObject(tokenizer);} break;
             }
-
             tokenizer.nextToken();
             tokenizer.parseToken();
             tokenType = tokenizer.tokenType();

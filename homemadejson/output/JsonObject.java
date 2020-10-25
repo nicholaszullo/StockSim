@@ -14,6 +14,7 @@ import homemadejson.support.TokenBuffer;
 public class JsonObject {
 
     private HashMap<String, Object> values;
+    private ArrayList<HashMap<String, Object>> objects;
     public JsonObject(){
         this("");
     }
@@ -21,6 +22,8 @@ public class JsonObject {
     public JsonObject(String jsonString) {
 
         values = new HashMap<String, Object>();
+        objects = new ArrayList<HashMap<String,Object>>();
+        objects.add(values);
 
         InputDataBuffer buffer = new InputDataBuffer(jsonString.length());
         TokenBuffer jsonTokens = new TokenBuffer(jsonString.length());
@@ -56,12 +59,20 @@ public class JsonObject {
         return null;
     }
 
-    /** Get the main hashmap of this JsonObject
+    /** Get the main hashmap of this JsonObject, first element in objects array
      * 
      * @return the HashMap<String, Object> of this Json
      */
     public HashMap<String, Object> getValues() {
         return values;
+    }
+
+    /** The array of hashmaps, typically only contains 1 
+     * 
+     * @return ArrayList<HashMap<String,Object>>
+     */
+    public ArrayList<HashMap<String, Object>> getObjects() {
+        return objects;
     }
 
     /** Use when you know the value will be a String, such as the name of a stock.
