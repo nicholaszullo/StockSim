@@ -1,12 +1,15 @@
 import homemadejson.output.*;
 
-public class StockSim extends ThreadDriver{
+public class StockSim {
 	public static void main(String[] args) {
 		
 		DatabaseHandler database = new DatabaseHandler("","test.db");
 		APIHandler api = new APIHandler();
-		JsonObject aapl = api.getTicker("AAPL");
-		System.out.println("Last price of aapl: " + aapl.getStringValue("lastPrice",aapl.getNestedMap("AAPL", aapl.getValues())));
+		ThreadDriver td = new ThreadDriver();
+		Buyer buyer = new Buyer(td);
+		Seller seller = new Seller(td);
+		buyer.start();
+		seller.start();
 	}
 
 }
