@@ -81,7 +81,15 @@ public class JsonNavigator {
     public Integer asInt() {
         int value = 0;
         int tempPos = this.elementBuffer.position[this.elementIndex];
-        for (int i = 0, n = this.elementBuffer.length[this.elementIndex]; i < n; i++) {
+        int length = this.elementBuffer.length[this.elementIndex];
+        boolean negative = false;
+        int i = 0;
+       if (this.buffer.data[tempPos] == '-'){
+            i++;
+            tempPos++;
+            negative = true;
+        }
+        for (; i < length; i++) {
             value *= 10;
             value += this.buffer.data[tempPos] - 48;
             tempPos++;
@@ -94,7 +102,12 @@ public class JsonNavigator {
         int tempPos = this.elementBuffer.position[this.elementIndex];
         int i = 0;
         int length = this.elementBuffer.length[this.elementIndex];
-
+        boolean negative = false;
+        if (this.buffer.data[tempPos] == '-'){
+            tempPos++;
+            length--;
+            negative = true;
+        }
         double value = 0;
         int decimalIndex = 0;
 
@@ -119,7 +132,7 @@ public class JsonNavigator {
         int fractionLength = length - decimalIndex - 1;
         double divisor = Math.pow(10, fractionLength);
         this.next();
-        return value / divisor;
+        return  negative ? -value / divisor : value/divisor;
     }
 
     public boolean isEqualUnencoded(String target) {

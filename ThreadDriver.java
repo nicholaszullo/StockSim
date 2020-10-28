@@ -8,7 +8,7 @@ public class ThreadDriver {
 	public ThreadDriver() {
 		if (cash == null) {
 			try {
-				ObjectInputStream data = new ObjectInputStream(new FileInputStream("data.txt"));
+				ObjectInputStream data = new ObjectInputStream(new FileInputStream("session.txt"));
 				cash = data.readDouble();
 				positions = (HashMap<String,Position>) data.readObject();
 				data.close();
@@ -21,7 +21,7 @@ public class ThreadDriver {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
 				try {
-					ObjectOutputStream data = new ObjectOutputStream(new FileOutputStream("data.txt",false));
+					ObjectOutputStream data = new ObjectOutputStream(new FileOutputStream("session.txt",false));
 					data.writeDouble(cash);
 					data.writeObject(positions);
 					data.close();
