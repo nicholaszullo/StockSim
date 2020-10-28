@@ -4,8 +4,10 @@ import java.util.HashMap;
 public class ThreadDriver {
 	public volatile Double cash = null; // Shared variables
 	public volatile HashMap<String, Position> positions = null; // Shared variables
+	public DatabaseHandler database;	//Should only be used by threads to read data
 	@SuppressWarnings("unchecked")
-	public ThreadDriver() {
+	public ThreadDriver(DatabaseHandler database) {
+		this.database = database;
 		if (cash == null) {
 			try {
 				ObjectInputStream data = new ObjectInputStream(new FileInputStream("session.txt"));
@@ -17,7 +19,6 @@ public class ThreadDriver {
 				positions = new HashMap<String,Position>();
 			} 
 		}  
-		System.out.println(positions);
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
 				try {
@@ -26,7 +27,6 @@ public class ThreadDriver {
 					data.writeObject(positions);
 					data.close();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}

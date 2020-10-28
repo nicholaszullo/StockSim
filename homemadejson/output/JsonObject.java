@@ -36,7 +36,7 @@ public class JsonObject {
         buffer.length = jsonString.length()-1;      //Set length of buffer
         JsonParser jsonParser = new JsonParser(jsonTokens, jsonElements);       //Fills the tokenizer
         jsonParser.parse(buffer);       //Fills the elements
-        JsonObjectBuilder builder = new JsonObjectBuilder(buffer, jsonElements, this);      //Fills the hashmap
+        new JsonObjectBuilder(buffer, jsonElements, this);      //Fills the hashmap
         
     }
 
@@ -67,6 +67,10 @@ public class JsonObject {
         return values;
     }
 
+    @Override
+    public String toString() {
+        return values.toString();
+    }
     /** The array of hashmaps, typically only contains 1 
      * 
      * @return ArrayList<HashMap<String,Object>>

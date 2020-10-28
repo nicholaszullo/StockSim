@@ -3,10 +3,10 @@ import java.net.*;
 import java.net.http.*;
 import java.net.http.HttpRequest.*;
 import java.net.http.HttpResponse.*;
+import java.time.LocalDateTime;
 
 import homemadejson.output.*;
 
-//TODO: {error=The access token being passed has expired or is invalid.} handle this
 
 public class APIHandler {
 
@@ -14,7 +14,7 @@ public class APIHandler {
 
 	public APIHandler() {
 		clientSender = HttpClient.newHttpClient();
-
+		//checkAccessToken();
 	}
 
 	/**
@@ -23,7 +23,7 @@ public class APIHandler {
 	 * @return A JSON object of the balance of the account
 	 */
 	public JsonObject getBalance() {
-
+		checkAccessToken();
 		return getBalance(clientSender);
 	}
 
@@ -31,11 +31,11 @@ public class APIHandler {
 		StringBuilder auth = new StringBuilder();
 		auth.append("Bearer ");
 		auth.append(getAccessToken());
-		
+
 		StringBuilder url = new StringBuilder();
 		url.append("https://api.tdameritrade.com/v1/accounts/");
 		url.append(getAccountNumber());
-		
+
 		HttpRequest balance = HttpRequest.newBuilder(URI.create(url.toString())).header("accept", "application/json")
 				.header("authorization", auth.toString()).GET().build();
 		HttpResponse<String> response = null;
@@ -53,6 +53,7 @@ public class APIHandler {
 	 * @return a JSON representation of the API return
 	 */
 	public JsonObject getTicker(String ticker) {
+		checkAccessToken();
 		return getTicker(ticker, clientSender);
 	}
 
@@ -63,7 +64,7 @@ public class APIHandler {
 		url.append(ticker);
 		url.append("/quotes?apikey=");
 		url.append(getApiKey());
-		
+
 		HttpRequest req = HttpRequest.newBuilder(URI.create(url.toString())).header("accept", "application/json").GET()
 				.build();
 		try {
@@ -95,7 +96,7 @@ public class APIHandler {
 		}
 
 		HttpRequest newkey = null;
-		
+
 		StringBuilder postBody = new StringBuilder("grant_type=refresh_token&refresh_token=");
 		postBody.append(getRefreshToken());
 		postBody.append("&access_type=&code=&client_id=");
@@ -104,7 +105,7 @@ public class APIHandler {
 		newkey = HttpRequest.newBuilder().uri(URI.create("https://api.tdameritrade.com/v1/oauth2/token"))
 				.header("Content-Type", "application/x-www-form-urlencoded")
 				.POST(BodyPublishers.ofString(postBody.toString())).build();
-		
+
 		HttpResponse<String> response = null;
 		try {
 			response = client.send(newkey, BodyHandlers.ofString());
@@ -114,6 +115,8 @@ public class APIHandler {
 		try {
 			JsonObject json = new JsonObject(response.body());
 			access.write(String.valueOf(json.getValues().get("access_token")));
+			access.newLine();
+			access.write(LocalDateTime.now().toString());
 			access.close();
 		} catch (IOException e) {
 			panic("Failed to write response to file!");
@@ -122,28 +125,29 @@ public class APIHandler {
 
 	/**
 	 * 
-	 * @param index The index to get the mover stocks from
-	 * @param direction Either "up" or "down", or null to not specify a direction 
-	 * @param change Either "value" or "percentage"
-	 * @return 10 mover stocks in a Json format 
+	 * @param index     The index to get the mover stocks from
+	 * @param direction Either "up" or "down", or null to not specify a direction
+	 * @param change    Either "value" or "percentage"
+	 * @return 10 mover stocks in a Json format
 	 */
-	public JsonObject getMovers(String index, String direction, String change){
+	public JsonObject getMovers(String index, String direction, String change) {
+		checkAccessToken();
 		return getMovers(index, direction, change, clientSender);
 
 	}
-	
-	private JsonObject getMovers(String index, String direction, String change, HttpClient client){
+
+	private JsonObject getMovers(String index, String direction, String change, HttpClient client) {
 		StringBuilder url = new StringBuilder();
 
 		url.append("https://api.tdameritrade.com/v1/marketdata/$");
-		url.append(index+"/movers");
-		url.append("?direction="+direction);
-		url.append("&change="+change);
+		url.append(index + "/movers");
+		url.append("?direction=" + direction);
+		url.append("&change=" + change);
 
 		StringBuilder auth = new StringBuilder();
 		auth.append("Bearer ");
 		auth.append(getAccessToken());
-		
+
 		HttpRequest req = HttpRequest.newBuilder(URI.create(url.toString())).header("accept", "application/json")
 				.header("authorization", auth.toString()).GET().build();
 		HttpResponse<String> response = null;
@@ -155,6 +159,30 @@ public class APIHandler {
 		return new JsonObject(response.body());
 	}
 
+	private void checkAccessToken() {
+		BufferedReader access = null;
+		try {
+			access = new BufferedReader(new FileReader(new File("AccessToken.key")));
+			access.readLine();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		LocalDateTime time = null;
+		try {
+			time = LocalDateTime.parse(access.readLine());
+			access.close();			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		if (LocalDateTime.now().minusMinutes(30).isAfter(time)){
+			getNewAccessToken();
+		}
+	}
+
+	/** Use to cleanly get the access token in api call methods
+	 * 
+	 * @return The access token with no spaces before or after
+	 */
 	private String getAccessToken(){
 		BufferedReader access = null;
 		String accessToken = "";
@@ -172,6 +200,10 @@ public class APIHandler {
 		return accessToken;
 	}
 
+	/** Use to cleanly get the refresh token in api call methods
+	 * 	Only used to get a new access token so far
+	 * @return The refresh token with no spaces before or after
+	 */
 	private String getRefreshToken() {
 		BufferedReader refresh = null;
 		try {
@@ -184,12 +216,15 @@ public class APIHandler {
 			refreshToken = refresh.readLine();
 			refresh.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return refreshToken;
 	}
 
+	/** Use to cleanly get the api key in api call methods
+	 * 
+	 * @return The api key with no spaces before or after
+	 */
 	private String getApiKey() {
 		BufferedReader api = null;
 		try {
@@ -202,12 +237,15 @@ public class APIHandler {
 			apiKey = api.readLine();
 			api.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return apiKey;
 	}
 
+	/** Use to cleanly get the account number in api call methods
+	 * 
+	 * @return The account number with no spaces before or after
+	 */
 	private String getAccountNumber(){
 		BufferedReader accountNumber = null;
 		try {
@@ -224,6 +262,10 @@ public class APIHandler {
 		return num;
 	}
 
+	/** Prints the debug message and exits
+	 * 
+	 * @param s the message to display
+	 */
 	private void panic(String s){
 		System.out.println(s);
 		System.exit(0);

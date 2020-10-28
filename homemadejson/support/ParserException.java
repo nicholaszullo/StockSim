@@ -6,7 +6,12 @@ package homemadejson.support;
 
 public class ParserException extends RuntimeException {
 
-    public ParserException() {}
+
+    private static final long serialVersionUID = 8426837970131421096L;
+
+    public ParserException() {
+        super("");
+    }
 
     public ParserException(String message) {
         super(message);

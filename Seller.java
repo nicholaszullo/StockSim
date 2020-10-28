@@ -1,5 +1,5 @@
 public class Seller extends Thread {
-	private final int SELLERS = 1; // Change this based on number of selling methods
+	//private final int SELLERS = 1; // Change this based on number of selling methods
 	private ThreadDriver shared;
 
 	public Seller(ThreadDriver td) {

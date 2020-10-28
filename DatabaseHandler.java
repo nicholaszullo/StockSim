@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class DatabaseHandler {
 	private Connection database;
-	private DatabaseMetaData data;
+	//private DatabaseMetaData data;
 
 	public DatabaseHandler() throws Exception {
 		throw new Exception("No name or path specified for the database!");
@@ -26,7 +26,7 @@ public class DatabaseHandler {
 	private void openConnection(String path, String name) {
 		try {
 			database = DriverManager.getConnection("jdbc:sqlite:" + path + name);
-			data = database.getMetaData();
+		//	data = database.getMetaData();
 			// System.out.println("Opened database successfully");
 		} catch (Exception e) {
 			System.out.println(e.getClass().getName() + ": " + e.getMessage());
@@ -46,11 +46,10 @@ public class DatabaseHandler {
 			ResultSet result = database.createStatement()
 					.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name=\'" + name + "\';");
 			if (!result.isClosed() && result.getString(1).equals(name)) {
-				System.out.println("Table " + name + " already exists!!");
+				//System.out.println("Table " + name + " already exists!!");
 				return;
 			}
 		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 
@@ -90,7 +89,6 @@ public class DatabaseHandler {
 				return;
 			}
 		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 
@@ -117,7 +115,10 @@ public class DatabaseHandler {
 					choose = 2;
 				}
 				if (choose == 0) {
-					prepState.setInt(i + 1, Integer.parseInt(data[i]));
+					if (data[i].indexOf(".") < 0)
+						prepState.setInt(i + 1, Integer.parseInt(data[i]));
+					else
+						prepState.setInt(i + 1, Integer.parseInt(data[i].substring(0,data[i].indexOf("."))));
 				} else if (choose == 1) {
 					prepState.setFloat(i + 1, Float.parseFloat(data[i]));
 				} else {
@@ -128,7 +129,6 @@ public class DatabaseHandler {
 			prepState.executeUpdate();
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -156,7 +156,6 @@ public class DatabaseHandler {
 			}
 			return data;
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;

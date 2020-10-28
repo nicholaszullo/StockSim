@@ -179,6 +179,8 @@ public class JsonTokenizer {
                 case '7': ;
                 case '8': ;
                 case '9': ;
+                case 'E': ;     //Handle 2.4E-4. Broken now but these cases stop it from crashing
+                case '-': ;
                 case '.': {
                     this.tokenBuffer.length[this.tokenIndex]++;
                     break;
