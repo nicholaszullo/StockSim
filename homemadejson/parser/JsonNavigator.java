@@ -95,7 +95,7 @@ public class JsonNavigator {
             tempPos++;
         }
         this.next();
-        return value;
+        return negative ? -value : value;
     }
 
     public double asDouble() {
