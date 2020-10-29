@@ -165,17 +165,21 @@ public class APIHandler {
 			access = new BufferedReader(new FileReader(new File("AccessToken.key")));
 			access.readLine();
 		} catch (IOException e) {
-			e.printStackTrace();
+			getNewAccessToken();		//If the file does not exist create an access token
 		}
 		LocalDateTime time = null;
 		try {
 			time = LocalDateTime.parse(access.readLine());
 			access.close();			
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			getNewAccessToken();		//If there was not a time in the file make a new one with proper format
 		}
-		if (LocalDateTime.now().minusMinutes(30).isAfter(time)){
-			getNewAccessToken();
+		try {
+			if (LocalDateTime.now().minusMinutes(30).isAfter(time)){
+				getNewAccessToken();
+			}
+		} catch (Exception e){
+			getNewAccessToken();		//If an error in date format, make a new one
 		}
 	}
 
