@@ -7,14 +7,13 @@ import java.time.LocalDateTime;
 
 import homemadejson.output.*;
 
-
 public class APIHandler {
 
 	HttpClient clientSender;
 
 	public APIHandler() {
 		clientSender = HttpClient.newHttpClient();
-		//checkAccessToken();
+		checkAccessToken();
 	}
 
 	/**
