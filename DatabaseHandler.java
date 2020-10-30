@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class DatabaseHandler {
 	private Connection database;
-	//private DatabaseMetaData data;
+	// private DatabaseMetaData data;
 
 	public DatabaseHandler() throws Exception {
 		throw new Exception("No name or path specified for the database!");
@@ -26,7 +26,7 @@ public class DatabaseHandler {
 	private void openConnection(String path, String name) {
 		try {
 			database = DriverManager.getConnection("jdbc:sqlite:" + path + name);
-		//	data = database.getMetaData();
+			// data = database.getMetaData();
 			// System.out.println("Opened database successfully");
 		} catch (Exception e) {
 			System.out.println(e.getClass().getName() + ": " + e.getMessage());
@@ -46,7 +46,7 @@ public class DatabaseHandler {
 			ResultSet result = database.createStatement()
 					.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name=\'" + name + "\';");
 			if (!result.isClosed() && result.getString(1).equals(name)) {
-				//System.out.println("Table " + name + " already exists!!");
+				// System.out.println("Table " + name + " already exists!!");
 				return;
 			}
 		} catch (SQLException e1) {
@@ -118,7 +118,7 @@ public class DatabaseHandler {
 					if (data[i].indexOf(".") < 0)
 						prepState.setInt(i + 1, Integer.parseInt(data[i]));
 					else
-						prepState.setInt(i + 1, Integer.parseInt(data[i].substring(0,data[i].indexOf("."))));
+						prepState.setInt(i + 1, Integer.parseInt(data[i].substring(0, data[i].indexOf("."))));
 				} else if (choose == 1) {
 					prepState.setFloat(i + 1, Float.parseFloat(data[i]));
 				} else {
@@ -134,16 +134,18 @@ public class DatabaseHandler {
 
 	}
 
-	/**	Query data from the database
+	/**
+	 * Query data from the database
 	 * 
-	 * @param table The name of the table to select
+	 * @param table  The name of the table to select
 	 * @param column The name of the column to select
 	 * @param extras A valid SQL command string. Can include WHERE, ORDER BY, etc.
-	 * @return an ArrayList of all the data returned by the query or null if the query failed
+	 * @return an ArrayList of all the data returned by the query or null if the
+	 *         query failed
 	 */
 	public ArrayList<String> selectData(String table, String column, String extras) {
 		StringBuilder statement = new StringBuilder();
-		statement.append("SELECT " + column + " FROM [" + table+"]");
+		statement.append("SELECT " + column + " FROM [" + table + "]");
 		if (extras != null) {
 			statement.append(" " + extras);
 		}
@@ -151,7 +153,7 @@ public class DatabaseHandler {
 		try {
 			ResultSet result = database.createStatement().executeQuery(statement.toString());
 			ArrayList<String> data = new ArrayList<String>();
-			while (result.next()){
+			while (result.next()) {
 				data.add(result.getString(1));
 			}
 			return data;
@@ -159,6 +161,24 @@ public class DatabaseHandler {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	/** Delete rows from a table
+	 * 
+	 * @param table Tbe name of the table to delete from
+	 * @param extras Specify WHERE, ORDER BY, etc. If using LIKE, need to add "" around string to match ex. \"%abc%\"
+	 */
+	public void deleteData(String table, String extras) {
+		StringBuilder statement = new StringBuilder();
+		statement.append("DELETE FROM [" + table + "] ");
+		if (extras != null) {
+			statement.append(extras);
+		}
+		try {
+			database.createStatement().execute(statement.toString());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

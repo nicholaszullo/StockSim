@@ -27,17 +27,20 @@ public class Buyer extends Thread {
 			double last15 = movingAverage(ticker, 15);
 			double last25 = movingAverage(ticker, 25);
 			double last50 = movingAverage(ticker, 50);
-			if (last15 - last25 < .1 && last15-last50 < .1) {
+			//System.out.println(ticker + " 15 " + last15 + " 25 " + last25 + " 50 " + last50);
+			if (Math.abs(last15 - last25) < .01 && Math.abs(last15-last50) < .01) {
 			//	System.out.println("crossed at buyer " + ticker);
 				synchronized (shared) {
 					double currPrice = Double.parseDouble(shared.database.selectData(ticker, "price", "ORDER BY date DESC LIMIT 1").get(0));
 					if (currPrice * 5 < shared.getCash()){
-						System.out.println("buying " + ticker + " at " + currPrice);
-						shared.subCash(5 * currPrice);
-						if (shared.positions.containsKey(ticker)){
+						if (shared.positions.containsKey(ticker) && shared.positions.get(ticker).shares < 50){
+							System.out.println("buying " + ticker + " at " + currPrice);
+							shared.subCash(5 * currPrice);
 							shared.positions.get(ticker).shares += 5;
-						} else {
+						} else if (!shared.positions.containsKey(ticker)){
 							Position temp = new Position(ticker, currPrice, 5, LocalDateTime.now());
+							System.out.println("buying " + ticker + " at " + currPrice);
+							shared.subCash(5 * currPrice);
 							shared.positions.put(ticker, temp);
 						}
 			//			System.out.println("new cashhh " + shared.getCash());
@@ -45,7 +48,7 @@ public class Buyer extends Thread {
 				}
 			}
 			try {
-				Thread.sleep(800);
+				Thread.sleep(3000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

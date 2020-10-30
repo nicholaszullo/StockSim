@@ -18,13 +18,10 @@ public class StockSim {
 		String[] tracked = { "AAPL", "MSFT", "INTC", "TSLA", "ZM" };
 		for (String s : tracked) {
 			addNewTicker(s, database); // Add the table to te database, if it exists database handler knows to do nothing
+			database.deleteData(s, "WHERE date LIKE \"%" + LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))+"%\"");		//Remove previous day's data to keep size of db low
 		}
 		APIHandler api = new APIHandler();
 		ThreadDriver td = new ThreadDriver(database);
-		Buyer buyer = new Buyer(td);
-		Seller seller = new Seller(td);
-		buyer.start();
-		seller.start();
 		for (String s : tracked) {
 			new Thread() {
 				public void run() {
@@ -33,6 +30,10 @@ public class StockSim {
 			}.start();
 			; 
 		}
+		Buyer buyer = new Buyer(td);
+		Seller seller = new Seller(td);
+		buyer.start();
+		seller.start();
 	}
 
 	public static void addNewTicker(String ticker, DatabaseHandler database) {

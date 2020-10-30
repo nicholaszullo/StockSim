@@ -25,12 +25,12 @@ public class Seller extends Thread {
 		while (true) {
 			double last15 = movingAverage(ticker, 15);
 			double last25 = movingAverage(ticker, 25);
-			if (last15 - last25 < .1) {
+			if (Math.abs(last15 - last25) < .01) {
 			//	System.out.println("crossed at seller " + ticker);
 				synchronized (shared) {
 					double currPrice = Double.parseDouble(
 							shared.database.selectData(ticker, "price", "ORDER BY date DESC LIMIT 1").get(0));
-					if (shared.positions.containsKey(ticker)) {
+					if (shared.positions.containsKey(ticker) && Math.abs(shared.positions.get(ticker).purchase_price - currPrice) > .03) {
 						System.out.println("selling " + ticker + " at " + currPrice);
 						shared.addCash(shared.positions.get(ticker).shares * currPrice);
 						shared.positions.remove(ticker);
@@ -39,7 +39,7 @@ public class Seller extends Thread {
 				}
 			}
 			try {
-				Thread.sleep(700);
+				Thread.sleep(3000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
