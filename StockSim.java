@@ -18,7 +18,7 @@ public class StockSim {
 		String[] tracked = { "AAPL", "MSFT", "INTC", "TSLA", "ZM" };
 		for (String s : tracked) {
 			addNewTicker(s, database); // Add the table to te database, if it exists database handler knows to do nothing
-			database.deleteData(s, "WHERE date LIKE \"%" + LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))+"%\"");		//Remove previous day's data to keep size of db low
+			database.deleteData(s, "WHERE date NOT LIKE \"%" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))+"%\"");		//Remove data from days not today
 		}
 		APIHandler api = new APIHandler();
 		ThreadDriver td = new ThreadDriver(database);
@@ -52,6 +52,14 @@ public class StockSim {
 		while (true) {
 			data[0] = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss.SSS"));
 			JsonObject holder = api.getTicker(ticker);
+			if (holder.getStringValue("error") != null) {
+				System.out.println("api calls exceeded!");
+				try {
+					Thread.sleep(20000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			} 
 			HashMap<String, Object> actualMap = holder.getNestedMap(ticker, holder.getValues());
 			data[1] = holder.getStringValue("lastPrice", actualMap);
 			data[2] = holder.getStringValue("totalVolume", actualMap);

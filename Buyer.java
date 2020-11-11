@@ -1,9 +1,8 @@
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class Buyer extends Thread {
-	// private final int BUYERS = 1; // Change this based on number of buying
-	// methods
 	private ThreadDriver shared;
 
 	public Buyer(ThreadDriver td) {
@@ -23,27 +22,22 @@ public class Buyer extends Thread {
 	}
 
 	private void buyAlgorithm(String ticker) {
+		double last15 = 0;
+		double last25 = 0;
+		double last50 = 0;
 		while (true) {
-			double last15 = movingAverage(ticker, 15);
-			double last25 = movingAverage(ticker, 25);
-			double last50 = movingAverage(ticker, 50);
-			//System.out.println(ticker + " 15 " + last15 + " 25 " + last25 + " 50 " + last50);
-			if (Math.abs(last15 - last25) < .01 && Math.abs(last15-last50) < .01) {
-			//	System.out.println("crossed at buyer " + ticker);
+			last15 = movingAverage(ticker, 15);
+			last25 = movingAverage(ticker, 25);
+			last50 = movingAverage(ticker, 50);
+			if (Math.abs(last15 - last25) < .01 && Math.abs(last15-last50) < .01 && last15 != 0) {
 				synchronized (shared) {
 					double currPrice = Double.parseDouble(shared.database.selectData(ticker, "price", "ORDER BY date DESC LIMIT 1").get(0));
-					if (currPrice * 5 < shared.getCash()){
-						if (shared.positions.containsKey(ticker) && shared.positions.get(ticker).shares < 50){
+					if (currPrice * 5 < Double.parseDouble(shared.getCash())){
+						if (shared.ownTicker(ticker) && shared.numberShares(ticker) < 50){
 							System.out.println("buying " + ticker + " at " + currPrice);
 							shared.subCash(5 * currPrice);
-							shared.positions.get(ticker).shares += 5;
-						} else if (!shared.positions.containsKey(ticker)){
-							Position temp = new Position(ticker, currPrice, 5, LocalDateTime.now());
-							System.out.println("buying " + ticker + " at " + currPrice);
-							shared.subCash(5 * currPrice);
-							shared.positions.put(ticker, temp);
-						}
-			//			System.out.println("new cashhh " + shared.getCash());
+							shared.database.insertRow("Positions", new String[] {ticker, "5", String.valueOf(currPrice), LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss.SSS"))});
+						} 
 					}
 				}
 			}

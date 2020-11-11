@@ -1,8 +1,6 @@
 import java.util.ArrayList;
 
 public class Seller extends Thread {
-	// private final int SELLERS = 1; // Change this based on number of selling
-	// methods
 	private ThreadDriver shared;
 
 	public Seller(ThreadDriver td) {
@@ -22,19 +20,21 @@ public class Seller extends Thread {
 	}
 
 	private void sellAlgorithm(String ticker) {
+		double last15 = 0;
+		double last25 = 0;
 		while (true) {
-			double last15 = movingAverage(ticker, 15);
-			double last25 = movingAverage(ticker, 25);
-			if (Math.abs(last15 - last25) < .01) {
-			//	System.out.println("crossed at seller " + ticker);
+			last15 = movingAverage(ticker, 15);
+			last25 = movingAverage(ticker, 25);
+			if (Math.abs(last15 - last25) < .01 && last15 != 0) {
 				synchronized (shared) {
 					double currPrice = Double.parseDouble(
 							shared.database.selectData(ticker, "price", "ORDER BY date DESC LIMIT 1").get(0));
-					if (shared.positions.containsKey(ticker) && Math.abs(shared.positions.get(ticker).purchase_price - currPrice) > .03) {
+					if (shared.ownTicker(ticker) && Math.abs( Double.parseDouble(shared.database.selectData("Positions", "price", "WHERE ticker="+ticker+ " ORDER BY date ASC").get(0)) - currPrice) > .03) {
 						System.out.println("selling " + ticker + " at " + currPrice);
-						shared.addCash(shared.positions.get(ticker).shares * currPrice);
-						shared.positions.remove(ticker);
-			//			System.out.println("new cash " + shared.getCash());
+						shared.addCash(Integer.parseInt(shared.database.selectData("Positions", "shares", "WHERE ticker=\""+ticker+ "\" ORDER BY date ASC").get(0)) * currPrice);
+						int id = Integer.parseInt(shared.database.selectData("Positions", "id", "WHERE ticker=\"" + ticker +"\" price="+shared.database.selectData("Positions", "price", "WHERE ticker="+ticker+ " ORDER BY date ASC").get(0) 
+						+ " shares=" +shared.database.selectData("Positions", "shares", "WHERE ticker=\""+ticker+ "\" ORDER BY date ASC").get(0)).get(0));
+						shared.database.deleteData("Positions", "WHERE id="+id);
 					}
 				}
 			}

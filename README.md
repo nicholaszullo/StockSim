@@ -1,6 +1,7 @@
 # Stock Market Simulation
 ## Instructions
 To begin the simulation, use StockSim.java. Ensure that the classpath contains sqlite as noted in the classpath folder. To end the simulation, kill the process with ctrl+c. Currently running in the background and killing with a sigterm does not properly write the data in the shutdown hook.
+You'll need an account with developer.tdameritrade and to create an app. You'll get an ApiKey from the app, which should be stored in ApiKey.key. Next you'll need to get a refresh token from Ameritrade. Place the refresh token in RefreshToken.key. If you for some reason want to link it to a real account, place the account number in AccountNumber.key (you'll also need to add the proper methods to APIHandler, it only supports retrieving account data, not making trades).
 
 ## Objective
 This environment is a harness to plug algorithms that buy stocks into the Buyer class and algorithms that sell stocks into the Seller class. These algorithms access the account balance and positions through synchonized shared memory in ThreadDriver.

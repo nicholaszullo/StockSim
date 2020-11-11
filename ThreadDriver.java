@@ -1,58 +1,56 @@
-import java.io.*;
-import java.util.HashMap;
+import java.util.ArrayList;
 
 public class ThreadDriver {
-	public volatile Double cash = null; // Shared variables
-	public volatile HashMap<String, Position> positions = null; // Shared variables
 	public DatabaseHandler database;	//Should only be used by threads to read data
-	@SuppressWarnings("unchecked")
 	public ThreadDriver(DatabaseHandler database) {
 		this.database = database;
-		if (cash == null) {
-			try {
-				ObjectInputStream data = new ObjectInputStream(new FileInputStream("session.dat"));
-				cash = data.readDouble();
-				positions = (HashMap<String,Position>) data.readObject();
-				data.close();
-			} catch (IOException | ClassNotFoundException e) {
-				cash = Double.valueOf(10000);
-				positions = new HashMap<String,Position>();
-			} 
-		}  
+		database.createTable("cash", new String[] {"cash REAL"});
+		database.createTable("Positions", new String[] {"id INTEGER UNIQUE", "ticker TEXT", "shares INTEGER","price REAL", "date TEXT"});
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
-				synchronized(this){		//Needed so if a buyer or seller is using the shared data wait for them to finish? is that what this accomplishes?
-					try {
-						ObjectOutputStream data = new ObjectOutputStream(new FileOutputStream("session.dat",false));
-						System.out.println("end with\ncash " + cash);
-						for (String s : positions.keySet()){
-							System.out.println(positions.get(s));
-						}
-						data.writeDouble(cash);
-						data.writeObject(positions);
-						data.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
+				System.out.println("end with \ncash " + getCash());
+				for (String id : database.selectData("Positions", "id", "")){
+					System.out.print(database.selectData("Positions", "ticker", "WHERE id="+id)+ " ");
+					System.out.print("shares: " + database.selectData("Positions", "shares", "WHERE id="+id) + " ");
+					System.out.print("price: " + database.selectData("Positions", "price", "WHERE id="+id) + " ");
+					System.out.print("date: " + database.selectData("Positions", "date", "WHERE id="+id) + " ");
 				}
 			}
 		}); 
-		System.out.println("start with \ncash " + cash);
-		for (String s : positions.keySet()){
-			System.out.println(positions.get(s));
+		System.out.println("start with \ncash " + getCash());
+		for (String id : database.selectData("Positions", "id", "")){
+			System.out.print(database.selectData("Positions", "ticker", "WHERE id="+id)+ " ");
+			System.out.print("shares: " + database.selectData("Positions", "shares", "WHERE id="+id) + " ");
+			System.out.print("price: " + database.selectData("Positions", "price", "WHERE id="+id) + " ");
+			System.out.print("date: " + database.selectData("Positions", "date", "WHERE id="+id) + " ");
 		}
 	}
 
 	public void changeCash(double val){
-		cash = Double.valueOf(val);
+		database.deleteData("cash", "");
+		database.insertRow("cash", new String[] { String.valueOf(val) });
 	}
 	public void addCash(double val){
-		cash += val;
+		changeCash(val + Double.parseDouble(getCash()));
 	}
 	public void subCash(double val){
-		cash -= val;
+		changeCash(Double.parseDouble(getCash()) - val);
 	}
-	public Double getCash(){
-		return cash;
+	public String getCash(){
+		return database.selectData("cash", "cash", "").get(0);
+	}
+	public boolean ownTicker(String ticker){
+		return database.selectData("Positions", "ticker", "WHERE ticker="+ticker).size() != 0;
+	}
+	public int nextID(){
+		return Integer.parseInt(database.selectData("Positions", "id", "ORDER BY DESC LIMIT 1").get(0))+1;
+	}
+	public int numberShares(String ticker){
+		ArrayList<String> shares = database.selectData("Positions", "shares", "WHERE ticker=\""+ ticker +"\"");
+		int num = 0;
+		for (String s : shares){
+			num += Integer.parseInt(s);
+		}
+		return num;
 	}
 }
