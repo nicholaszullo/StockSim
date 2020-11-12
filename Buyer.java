@@ -12,6 +12,8 @@ public class Buyer extends Thread {
 	public void run() {
 		ArrayList<String> tickers = shared.database.selectData("sqlite_master", "name", "");
 		for (String s : tickers) {
+			if (s.equals("Positions") || s.equals("cash"))
+				continue;
 			new Thread(){
 				public void run(){
 					buyAlgorithm(s);
@@ -33,10 +35,10 @@ public class Buyer extends Thread {
 				synchronized (shared) {
 					double currPrice = Double.parseDouble(shared.database.selectData(ticker, "price", "ORDER BY date DESC LIMIT 1").get(0));
 					if (currPrice * 5 < Double.parseDouble(shared.getCash())){
-						if (shared.ownTicker(ticker) && shared.numberShares(ticker) < 50){
+						if (shared.numberShares(ticker) < 50){
 							System.out.println("buying " + ticker + " at " + currPrice);
 							shared.subCash(5 * currPrice);
-							shared.database.insertRow("Positions", new String[] {ticker, "5", String.valueOf(currPrice), LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss.SSS"))});
+							shared.database.insertRow("Positions", new String[] {String.valueOf(shared.nextID()), ticker, "5", String.valueOf(currPrice), LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss.SSS"))});
 						} 
 					}
 				}

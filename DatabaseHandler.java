@@ -158,7 +158,7 @@ public class DatabaseHandler {
 			}
 			return data;
 		} catch (SQLException e) {
-			e.printStackTrace();
+		//	e.printStackTrace();
 		}
 		return null;
 	}
