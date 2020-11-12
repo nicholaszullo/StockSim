@@ -7,6 +7,9 @@
 # Compiled class file
 *.class
 
+# Database file
+*.db
+
 # Log file
 *.log
 

@@ -46,7 +46,7 @@ public class ThreadDriver {
 		return database.selectData("cash", "cash", "").get(0);
 	}
 	public boolean ownTicker(String ticker){
-		return database.selectData("Positions", "ticker", "WHERE ticker=\""+ ticker +"\"").size() == 0 ? false : true;
+		return !(database.selectData("Positions", "ticker", "WHERE ticker=\""+ ticker +"\"").size() == 0);
 	}
 	public int nextID(){
 		if (database.selectData("Positions", "id", "ORDER BY date DESC LIMIT 1") == null)
