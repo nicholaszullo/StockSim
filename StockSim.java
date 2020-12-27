@@ -15,7 +15,7 @@ public class StockSim {
 	public static void main(String[] args) {
 
 		DatabaseHandler database = new DatabaseHandler("", "stocks.db");
-		String[] tracked = { "AAPL", "MSFT", "INTC", "TSLA", "ZM" };
+		String[] tracked = { "AAPL", "NIO", "MSFT", "INTC", "TSLA", "ZM" };
 		for (String s : tracked) {
 			addNewTicker(s, database); // Add the table to te database, if it exists database handler knows to do nothing
 			database.deleteData(s, "WHERE date NOT LIKE \"%" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))+"%\"");		//Remove data from days not today
@@ -65,7 +65,7 @@ public class StockSim {
 			data[2] = holder.getStringValue("totalVolume", actualMap);
 			database.insertRow(ticker, data);
 			try {
-				Thread.sleep(3000);	// Minimum time the API takes to update the data is 700
+				Thread.sleep(3200);	// Minimum time the API takes to update the data is 700
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			} 

@@ -78,6 +78,56 @@ public class JsonNavigator {
         return true;
     }
 
+    public double parseSci(){
+        boolean negative = false;
+        boolean small = false;
+        int tempPos = this.elementBuffer.position[this.elementIndex];
+        int i = 0;
+        double value = 0;
+        if (this.buffer.data[tempPos] == '-'){
+            tempPos++;
+            negative = true;
+            i++;
+        }
+        int decimalIndex = 0;
+
+        while (this.buffer.data[tempPos] != 'E') {
+            value *= 10;
+            value += (this.buffer.data[tempPos] - 48);
+            tempPos++;
+            i++;
+            if (this.buffer.data[tempPos] == '.') {
+                tempPos++;
+                i++;
+                decimalIndex = i;
+            }
+        }
+        int fractionLength = i - decimalIndex;
+        double divisor = Math.pow(10, fractionLength);
+        value /= divisor;
+        tempPos++;      //Move pass E
+        i++;
+        if (this.buffer.data[tempPos] == '-'){
+            small = true;
+            tempPos++;
+            i++;
+        }
+        int exponent = 0;
+        while (i < this.elementBuffer.length[this.elementIndex]){
+            exponent *= 10;
+            exponent += this.buffer.data[tempPos] - '0';
+            tempPos++;
+            i++;
+        }
+        if (small){
+            exponent *= -1;
+        }
+        System.out.println("value " + value + " " + exponent);
+        value *= Math.pow(10, exponent);
+        return negative ? -value : value;
+
+    }
+
     public Integer asInt() {
         int value = 0;
         int tempPos = this.elementBuffer.position[this.elementIndex];

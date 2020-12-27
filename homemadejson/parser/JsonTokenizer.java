@@ -73,7 +73,15 @@ public class JsonTokenizer {
             case '7' : ;
             case '8' : ;
             case '9' : ; 
-            case '-' : { parseNumber(); this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_NUMBER_TOKEN; break; }
+            case '-' : { 
+                if (parseNumber()){     //True means scientific number
+                    this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_SCIENTIFIC_TOKEN; 
+                    break;
+                } else {
+                    this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_NUMBER_TOKEN; 
+                    break; 
+                }
+            }
         }
     }
 
@@ -163,12 +171,19 @@ public class JsonTokenizer {
     }
 
 //    Number parser
-    private void parseNumber() {
+    private boolean parseNumber() {
         boolean endOfNumber = false;
+        boolean scientific = false;
         this.tokenBuffer.length[this.tokenIndex] = 1;
-
         while (!endOfNumber) {
             switch (this.dataBuffer.data[this.dataPosition + this.tokenBuffer.length[this.tokenIndex]]) {
+                case 'E': ;
+                case 'e': {
+                    this.dataBuffer.data[this.dataPosition+this.tokenBuffer.length[this.tokenIndex]] = 'E';     //Capitalize 
+                    scientific = true;
+                    this.tokenBuffer.length[this.tokenIndex]++;
+                    break;
+                }
                 case '0': ;
                 case '1': ;
                 case '2': ;
@@ -179,7 +194,6 @@ public class JsonTokenizer {
                 case '7': ;
                 case '8': ;
                 case '9': ;
-                case 'E': ;     //Handle 2.4E-4. Broken now but these cases stop it from crashing
                 case '-': ;
                 case '.': {
                     this.tokenBuffer.length[this.tokenIndex]++;
@@ -189,8 +203,9 @@ public class JsonTokenizer {
                 default: {
                     endOfNumber = true;
                 }  // number ends
-            }
+            }    
         }
+        return scientific;
     }
 
 //    String parser

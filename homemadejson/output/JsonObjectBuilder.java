@@ -3,6 +3,8 @@ package homemadejson.output;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javax.lang.model.element.Element;
+
 import homemadejson.parser.ElementTypes;
 import homemadejson.parser.JsonNavigator;
 import homemadejson.support.InputDataBuffer;
@@ -72,11 +74,14 @@ public class JsonObjectBuilder {
                     } else {
                         curr.put(key, jsonNavigator.asDouble());
                     }
+                } else if (jsonNavigator.type() == ElementTypes.JSON_PROPERTY_VALUE_SCIENTIFIC){
+                    curr.put(key, jsonNavigator.parseSci());
+                    jsonNavigator.next();
                 } else if (jsonNavigator.type() == ElementTypes.JSON_PROPERTY_VALUE_NULL){
                     curr.put(key, null);
                     jsonNavigator.next();
                 }  else {
-                    throw new ParserException("Key without a value!");
+                    throw new ParserException("Key without a value!" + jsonNavigator.type());
                 }   //End key ladder
             } else if (jsonNavigator.type() == ElementTypes.JSON_OBJECT_END) {  //If not at a key, must either be at the start or the end
                 return ;
@@ -113,6 +118,8 @@ public class JsonObjectBuilder {
                 } else {
                     nested.add(jsonNavigator.asDouble());
                 }
+            } else if (jsonNavigator.type() == ElementTypes.JSON_PROPERTY_VALUE_SCIENTIFIC){
+                nested.add(jsonNavigator.parseSci());
             }
         }
         jsonNavigator.next();

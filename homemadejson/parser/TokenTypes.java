@@ -17,4 +17,5 @@ public class TokenTypes {
     public static final byte JSON_BOOL_TOKEN = 8;
     public static final byte JSON_NULL_TOKEN = 9;
     public static final byte JSON_COMMA = 10;
+    public static final byte JSON_SCIENTIFIC_TOKEN = 11;
 }

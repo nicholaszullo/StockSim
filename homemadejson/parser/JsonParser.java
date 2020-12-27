@@ -1,5 +1,7 @@
 package homemadejson.parser;
 
+import javax.lang.model.element.Element;
+
 import homemadejson.support.InputDataBuffer;
 import homemadejson.support.TokenBuffer;
 import homemadejson.support.ParserException;
@@ -59,6 +61,7 @@ public class JsonParser {
             switch(tokenType) {         //If not, it is a value
                 case TokenTypes.JSON_STRING_TOKEN   : { setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_STRING); } break;
                 case TokenTypes.JSON_NUMBER_TOKEN   : { setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_NUMBER); } break;
+                case TokenTypes.JSON_SCIENTIFIC_TOKEN : {setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_SCIENTIFIC); } break;
                 case TokenTypes.JSON_BOOL_TOKEN   : { setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_BOOLEAN); } break;
                 case TokenTypes.JSON_NULL_TOKEN   : { setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_NULL); } break;
                 case TokenTypes.JSON_CURLY_BRACKET_LEFT  : { parseObject(tokenizer); } break;       //Call this method again to recursively parse the new object then return to this object after
@@ -81,6 +84,7 @@ public class JsonParser {
             switch(tokenType) {
                 case TokenTypes.JSON_STRING_TOKEN   : { setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE_STRING); } break;
                 case TokenTypes.JSON_NUMBER_TOKEN   : { setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE_NUMBER); } break;
+                case TokenTypes.JSON_SCIENTIFIC_TOKEN : { setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_SCIENTIFIC); } break;
                 case TokenTypes.JSON_BOOL_TOKEN   : { setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE_BOOLEAN); } break;
                 case TokenTypes.JSON_NULL_TOKEN   : { setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE_NULL); } break;
                 case TokenTypes.JSON_CURLY_BRACKET_LEFT : { parseObject(tokenizer);} break;
