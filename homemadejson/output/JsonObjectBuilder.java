@@ -3,8 +3,6 @@ package homemadejson.output;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import javax.lang.model.element.Element;
-
 import homemadejson.parser.ElementTypes;
 import homemadejson.parser.JsonNavigator;
 import homemadejson.support.InputDataBuffer;

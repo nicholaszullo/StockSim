@@ -1,7 +1,5 @@
 package homemadejson.parser;
 
-import javax.lang.model.element.Element;
-
 import homemadejson.support.InputDataBuffer;
 import homemadejson.support.TokenBuffer;
 import homemadejson.support.ParserException;
