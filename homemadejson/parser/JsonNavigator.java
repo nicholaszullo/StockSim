@@ -122,7 +122,6 @@ public class JsonNavigator {
         if (small){
             exponent *= -1;
         }
-        System.out.println("value " + value + " " + exponent);
         value *= Math.pow(10, exponent);
         return negative ? -value : value;
 

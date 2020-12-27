@@ -39,7 +39,6 @@ public class JsonObjectBuilder {
         while (jsonNavigator.type() != ElementTypes.JSON_OBJECT_END){ 
             if (jsonNavigator.type() == ElementTypes.JSON_PROPERTY_NAME){       //If at a key, assign the value
                 String key = jsonNavigator.asString();
-                jsonNavigator.asString();                   //Need an extra next() after key Why? Storing of property name must be OBO
                 if (jsonNavigator.type() == ElementTypes.JSON_OBJECT_START){    //If new object, create a new hashmap and store it in the current hashmap. Call the new object with the new hashmap
                     HashMap<String,Object> nested = new HashMap<String,Object>();
                     curr.put(key, nested);

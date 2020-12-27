@@ -55,6 +55,7 @@ public class JsonParser {
             tokenType = tokenizer.tokenType();
             if (tokenizer.peakColon()){             //If the token after this is a colon, it is a key
                 setElementData(tokenizer, ElementTypes.JSON_PROPERTY_NAME);
+                continue;
             } 
             switch(tokenType) {         //If not, it is a value
                 case TokenTypes.JSON_STRING_TOKEN   : { setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_STRING); } break;
