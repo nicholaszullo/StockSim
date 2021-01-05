@@ -19,7 +19,6 @@ public class Buyer extends Thread {
 					buyAlgorithm(s);
 				}
 			}.start();
-			;
 		}
 	}
 
@@ -36,7 +35,7 @@ public class Buyer extends Thread {
 					double currPrice = Double.parseDouble(shared.database.selectData(ticker, "price", "ORDER BY date DESC LIMIT 1").get(0));
 					if (currPrice * 5 < Double.parseDouble(shared.getCash())){
 						if (shared.numberShares(ticker) < 50){
-							System.out.println("buying " + ticker + " at " + currPrice);
+							shared.log.out(shared.log.INFO, "buying " + ticker + " at " + currPrice);
 							shared.subCash(5 * currPrice);
 							shared.database.insertRow("Positions", new String[] {String.valueOf(shared.nextID()), ticker, "5", String.valueOf(currPrice), LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss.SSS"))});
 						} 
