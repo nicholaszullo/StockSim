@@ -1,33 +1,35 @@
 import java.util.ArrayList;
 
 public class ThreadDriver {
-	public DatabaseHandler database;	//Should only be used by threads to read data
-	public ThreadDriver(DatabaseHandler database) {
+	public DatabaseHandler database;	//Should only be used by threads to read data\
+	public Logger log;		//Used to output messages to a logger
+	public ThreadDriver(DatabaseHandler database, Logger log) {
 		this.database = database;
+		this.log = log;
 		database.createTable("cash", new String[] {"cash REAL"});
 		database.createTable("Positions", new String[] {"id INTEGER", "ticker TEXT", "shares INTEGER","price REAL", "date TEXT"});
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
-				System.out.println("end with \ncash " + getCash());
+				log.out(log.INFO, "end with \ncash " + getCash());
 				for (String id : database.selectData("Positions", "id", "")){
-					System.out.print(database.selectData("Positions", "ticker", "WHERE id="+id)+ " ");
-					System.out.print("shares: " + database.selectData("Positions", "shares", "WHERE id="+id) + " ");
-					System.out.print("price: " + database.selectData("Positions", "price", "WHERE id="+id) + " ");
-					System.out.print("date: " + database.selectData("Positions", "date", "WHERE id="+id) + "\n");
+					log.out(log.INFO, database.selectData("Positions", "ticker", "WHERE id="+id)+ " ");
+					log.out(log.INFO, "shares: " + database.selectData("Positions", "shares", "WHERE id="+id) + " ");
+					log.out(log.INFO, "price: " + database.selectData("Positions", "price", "WHERE id="+id) + " ");
+					log.out(log.INFO, "date: " + database.selectData("Positions", "date", "WHERE id="+id) + "\n");
 				}
 			}
 		}); 
 		try {
-			System.out.println("start with \ncash " + getCash());
+			log.out(log.INFO, "start with \ncash " + getCash());
 			for (String id : database.selectData("Positions", "id", "")){
-				System.out.print(database.selectData("Positions", "ticker", "WHERE id="+id)+ " ");
-				System.out.print("shares: " + database.selectData("Positions", "shares", "WHERE id="+id) + " ");
-				System.out.print("price: " + database.selectData("Positions", "price", "WHERE id="+id) + " ");
-				System.out.print("date: " + database.selectData("Positions", "date", "WHERE id="+id) + "\n");
+				log.out(log.INFO, database.selectData("Positions", "ticker", "WHERE id="+id)+ " ");
+					log.out(log.INFO, "shares: " + database.selectData("Positions", "shares", "WHERE id="+id) + " ");
+					log.out(log.INFO, "price: " + database.selectData("Positions", "price", "WHERE id="+id) + " ");
+					log.out(log.INFO, "date: " + database.selectData("Positions", "date", "WHERE id="+id) + "\n");
 			}
 		} catch (Exception e){
 			changeCash(10000.0);
-			System.out.println("start with \ncash " + getCash());
+			log.out(log.INFO, "start with \ncash " + getCash());
 		}
 	}
 

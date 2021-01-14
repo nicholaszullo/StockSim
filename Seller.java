@@ -17,7 +17,6 @@ public class Seller extends Thread {
 					sellAlgorithm(s);
 				}
 			}.start();
-			;
 		}
 	}
 
@@ -34,7 +33,7 @@ public class Seller extends Thread {
 					if (shared.ownTicker(ticker)){ 
 						int id = Integer.parseInt(shared.database.selectData("Positions", "id", "WHERE ticker=\""+ ticker +"\" ORDER BY date ASC").get(0));
 						if (Math.abs( Double.parseDouble(shared.database.selectData("Positions", "price", "WHERE id="+id).get(0)) - currPrice) > .03){ 
-							System.out.println("selling " + ticker + " at " + currPrice);
+							shared.log.out(shared.log.INFO, "selling " + ticker + " at " + currPrice);
 							shared.addCash(currPrice * Integer.parseInt(shared.database.selectData("Positions", "shares", "WHERE id="+id).get(0)));
 							shared.database.deleteData("Positions", "WHERE id="+id);
 						}

@@ -158,15 +158,17 @@ public class DatabaseHandler {
 			}
 			return data;
 		} catch (SQLException e) {
-		//	e.printStackTrace();
+			// e.printStackTrace();
 		}
 		return null;
 	}
 
-	/** Delete rows from a table
+	/**
+	 * Delete rows from a table
 	 * 
-	 * @param table Tbe name of the table to delete from
-	 * @param extras Specify WHERE, ORDER BY, etc. If using LIKE, need to add "" around string to match ex. \"%abc%\"
+	 * @param table  Tbe name of the table to delete from
+	 * @param extras Specify WHERE, ORDER BY, etc. If using LIKE, need to add ""
+	 *               around string to match ex. \"%abc%\"
 	 */
 	public void deleteData(String table, String extras) {
 		StringBuilder statement = new StringBuilder();
@@ -178,6 +180,20 @@ public class DatabaseHandler {
 			database.createStatement().execute(statement.toString());
 		} catch (SQLException e) {
 			e.printStackTrace();
+		}
+	}
+	/**	Executes given SQL statement with no safegaurds. Only used to manipulate data inside database.
+	 * 	Cannot return anything from the database. Use selectData to get data back from database.
+	 * 
+	 * @param statement	SQL statement to be executed
+	 * @return true if the statement executed, false if an exception occured
+	 */
+	public boolean executeStatement(String statement) {
+		try {
+			database.createStatement().execute(statement);
+			return true;
+		} catch (SQLException e) {
+			return false;
 		}
 	}
 
